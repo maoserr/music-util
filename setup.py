@@ -40,34 +40,17 @@ setup(
     ],
     keywords="music, utility",
     package_dir={"": "music_util"},  # Optional
-    packages=find_packages(where="src"),  # Required
+    packages=find_packages(where="music_util"),  # Required
     python_requires=">=3.7, <4",
-    # This field lists other packages that your project depends on to run.
-    # Any package you put here will be installed by pip when your project is
-    # installed, so they must be valid existing projects.
-    #
-    # For an analysis of "install_requires" vs pip's requirements files see:
-    # https://packaging.python.org/discussions/install-requires-vs-requirements/
     install_requires=["sv-ttk>=2.5.5"],  # Optional
-    # List additional groups of dependencies here (e.g. development
-    # dependencies). Users will be able to install these using the "extras"
-    # syntax, for example:
-    #
-    #   $ pip install sampleproject[dev]
-    #
-    # Similar to `install_requires` above, these must be valid existing
-    # projects.
     extras_require={  # Optional
         "spleeter": ["spleeter>=2.3.0"],
-        "demucs":["demucs>=4.0.1"],
+        "demucs": ["demucs>=4.0.1"],
+        "crepe": ["crepe==0.0.14"],
     },
-    # If there are data files included in your packages that need to be
-    # installed, specify them here.
     package_data={  # Optional
         "sample": ["package_data.dat"],
     },
-    # Entry points. The following would provide a command called `sample` which
-    # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         "console_scripts": [
             "musutil=main:main",
