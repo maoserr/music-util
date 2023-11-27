@@ -48,7 +48,7 @@ setup(
     #
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/discussions/install-requires-vs-requirements/
-    install_requires=["demucs>=4.0.1", "sv-ttk>=2.5.5"],  # Optional
+    install_requires=["sv-ttk>=2.5.5"],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
     # syntax, for example:
@@ -59,6 +59,7 @@ setup(
     # projects.
     extras_require={  # Optional
         "spleeter": ["spleeter>=2.3.0"],
+        "demucs":["demucs>=4.0.1"],
     },
     # If there are data files included in your packages that need to be
     # installed, specify them here.
