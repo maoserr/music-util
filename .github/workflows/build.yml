@@ -1,7 +1,5 @@
 # Github actions to build
 # and push wheel files
-permissions:
-  id-token: write
 
 on:
   push:
@@ -15,6 +13,9 @@ env:
 jobs:
   build_wheel:
     runs-on: ubuntu-latest
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
