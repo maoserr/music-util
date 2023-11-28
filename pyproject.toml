@@ -1,7 +1,7 @@
 [project]
 # https://pypi.org/project/sampleproject/
 name = "music_util"  # Required
-version = "1.0.0"  # Required
+dynamic = ["version"]
 description = "Collection of utilities for musicians"
 readme = "README.md" # Optional
 requires-python = ">=3.7"
@@ -30,3 +30,6 @@ musutil = "music_util:main"
 [build-system]
 requires = ["setuptools>=43.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}

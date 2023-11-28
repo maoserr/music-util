@@ -5,11 +5,15 @@ on:
     branches:
       - main
 
+env:
+  MAJOR_VER: 3
+  MINOR_VER: 0
+
 jobs:
   build_wheel:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -17,4 +21,10 @@ jobs:
       - name: Build wheel
         run: |
           python -m pip install --user --upgrade build
+          echo "$MAJOR_VER.$MINOR_VER.${{ github.run_number }}" > VERSION
           python -m build
+          python -m twine upload --repository testpypi dist/*
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheel
+          path: dist/chrome_prod/*.whl
