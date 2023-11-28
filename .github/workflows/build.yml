@@ -1,5 +1,8 @@
 # Github actions to build
 # and push wheel files
+permissions:
+  id-token: write
+
 on:
   push:
     branches:
@@ -20,7 +23,7 @@ jobs:
           python-version: 3.9
       - name: Build wheel
         run: |
-          python -m pip install --user --upgrade build twine
+          python -m pip install --user --upgrade build
           echo "$MAJOR_VER.$MINOR_VER.${{ github.run_number }}" > VERSION
           python -m build
       - name: Publish package distributions to PyPI
