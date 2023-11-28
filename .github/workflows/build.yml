@@ -20,7 +20,7 @@ jobs:
           python-version: 3.9
       - name: Build wheel
         run: |
-          python -m pip install --user --upgrade build
+          python -m pip install --user --upgrade build twine
           echo "$MAJOR_VER.$MINOR_VER.${{ github.run_number }}" > VERSION
           python -m build
           python -m twine upload --repository testpypi dist/*
