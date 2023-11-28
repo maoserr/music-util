@@ -23,7 +23,8 @@ jobs:
           python -m pip install --user --upgrade build twine
           echo "$MAJOR_VER.$MINOR_VER.${{ github.run_number }}" > VERSION
           python -m build
-          python -m twine upload --repository testpypi dist/*
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
       - uses: actions/upload-artifact@v3
         with:
           name: wheel
