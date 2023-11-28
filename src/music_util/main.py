@@ -33,7 +33,6 @@ class VocalRemover(tk.Frame):
         for child in self.winfo_children():
             child.grid_configure(padx=5, pady=5)
 
-
     def set_file(self):
         files = tk.filedialog.askopenfilenames(title='Select MP3',
                                                initialdir='/',
@@ -51,10 +50,12 @@ class VocalRemover(tk.Frame):
         #                                       + in_files,))
         # p.start()
 
+
 class transcription(tk.Frame):
     def __init__(self, root, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
         self.grid()
+
 
 def main(argv: list):
     import sv_ttk
@@ -71,7 +72,8 @@ def main(argv: list):
 
     sv_ttk.set_theme("dark")
     root.title("Musician Utilities")
-    root.iconphoto(False, tk.PhotoImage(file='icon.png'))
+    root.iconphoto(False, tk.PhotoImage(file=os.path.join(os.path.dirname(__file__),
+                                                          'icon.png')))
     root.resizable(False, False)
     root.mainloop()
 

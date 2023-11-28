@@ -1,0 +1,32 @@
+[project]
+# https://pypi.org/project/sampleproject/
+name = "music_util"  # Required
+version = "1.0.0"  # Required
+description = "Collection of utilities for musicians"
+readme = "README.md" # Optional
+requires-python = ">=3.7"
+license = { text = "MIT" }
+keywords = ["music, utility"]
+authors = [
+    { name = "Maoserr", email = "maoserr@gmail.com" }
+]
+
+dependencies = [
+    "sv-ttk>=2.5.5"
+]
+
+[project.optional-dependencies] # Optional
+"spleeter" = ["spleeter>=2.3.0"]
+"demucs" = ["demucs>=4.0.1"]
+"crepe" = ["crepe==0.0.14"]
+
+[project.urls]  # Optional
+"Bug Reports" = "https://github.com/maoserr/epublifier/music-util/issues"
+"Source" = "https://github.com/maoserr/epublifier/music-util/"
+
+[project.scripts]  # Optional
+musutil = "music_util:main"
+
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
