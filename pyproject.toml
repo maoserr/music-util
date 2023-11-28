@@ -21,8 +21,8 @@ dependencies = [
 "crepe" = ["crepe==0.0.14"]
 
 [project.urls]  # Optional
-"Bug Reports" = "https://github.com/maoserr/epublifier/music-util/issues"
-"Source" = "https://github.com/maoserr/epublifier/music-util/"
+"Bug Reports" = "https://github.com/maoserr/music-util/issues"
+"Source" = "https://github.com/maoserr/music-util"
 
 [project.scripts]  # Optional
 musutil = "music_util:main"
