@@ -29,6 +29,11 @@ jobs:
           python -m build
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        if: github.ref == 'refs/heads/master'
+      - name: Publish package distributions to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
       - uses: actions/upload-artifact@v3
         with:
           name: wheel
