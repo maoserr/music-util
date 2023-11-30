@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - develop
 
 env:
   MAJOR_VER: 3
