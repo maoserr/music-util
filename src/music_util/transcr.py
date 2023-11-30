@@ -13,8 +13,10 @@ def crepe_exe(args: list, q: Queue):
 
     import crepe
     import librosa
+    import pandas as pd
     audio, sr = librosa.load(args[0])
     time, frequency, confidence, activation = crepe.predict(audio, sr, viterbi=True)
+    pd.DataFrame({'time':time,"freq":frequency,"confident":confidence}).to_csv(args[1])
     print("Processing complete")
 
 
@@ -59,7 +61,8 @@ class Transcript(tk.Frame):
 
     def run_transcipt(self):
         infile = self.inpfile.get()
+        outfile = self.outfile.get()
         print("Starting crepes...")
-        all_args = [infile, ]
+        all_args = [infile, outfile]
         p = Process(target=crepe_exe, args=(all_args, self.q))
         p.start()
