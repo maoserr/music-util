@@ -11,13 +11,17 @@ def crepe_exe(args: list, q: Queue):
     sys.stdout = StdoutProcRedirect(q)
     sys.stderr = StdoutProcRedirect(q)
 
-    import crepe
-    import librosa
-    import pandas as pd
-    audio, sr = librosa.load(args[0])
-    time, frequency, confidence, activation = crepe.predict(audio, sr, viterbi=True)
-    pd.DataFrame({'time':time,"freq":frequency,"confident":confidence}).to_csv(args[1])
-    print("Processing complete")
+    try:
+        import crepe
+        import librosa
+        import pandas as pd
+        audio, sr = librosa.load(args[0])
+        time, frequency, confidence, activation = crepe.predict(audio, sr, viterbi=True)
+        pd.DataFrame({'time': time, "freq": frequency, "confident": confidence}).to_csv(args[1])
+        print("Processing complete")
+    except:
+        import traceback
+        traceback.print_exc()
 
 
 class Transcript(tk.Frame):
@@ -30,18 +34,18 @@ class Transcript(tk.Frame):
         self.inpfile = tk.StringVar(root, "")
         r = 0
 
-        # Output row
-        ttk.Label(self, text="Output").grid(row=r, column=0)
-        ttk.Entry(self, textvariable=self.outfile).grid(row=r, column=1, sticky="ew")
-        ttk.Button(self, text="...", command=self.set_outfile).grid(row=r, column=2, sticky="new")
-
-        r = r + 1
         # Input row
         ttk.Label(self, text="Input").grid(row=r, column=0)
         ttk.Entry(self, textvariable=self.inpfile).grid(row=r, column=1, sticky="ew")
         ttk.Button(self, text="...", command=self.set_infile).grid(row=r, column=2, sticky="new")
-
         r = r + 1
+
+        # Output row
+        ttk.Label(self, text="Output").grid(row=r, column=0)
+        ttk.Entry(self, textvariable=self.outfile).grid(row=r, column=1, sticky="ew")
+        ttk.Button(self, text="...", command=self.set_outfile).grid(row=r, column=2, sticky="new")
+        r = r + 1
+
         # Run row
         ttk.Button(self, text="Run", command=self.run_transcipt).grid(row=r, column=2, sticky="e")
 

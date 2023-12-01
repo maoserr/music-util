@@ -21,9 +21,13 @@ def demucs_exec(args: list, q: Queue):
     sys.stdout = StdoutProcRedirect(q)
     sys.stderr = StdoutProcRedirect(q)
 
-    from demucs import separate
-    separate.main(args)
-    print("Processing complete")
+    try:
+        from demucs import separate
+        separate.main(args)
+        print("Processing complete")
+    except:
+        import traceback
+        traceback.print_exc()
 
 
 class VocalRemover(tk.Frame):
@@ -39,12 +43,6 @@ class VocalRemover(tk.Frame):
         self.adv_opt = tk.StringVar(root, default_opts.get(default_model, ""))
         r = 0
 
-        # Output row
-        ttk.Label(self, text="Output").grid(row=r, column=0)
-        ttk.Entry(self, textvariable=self.outfile).grid(row=r, column=1, sticky="ew")
-        ttk.Button(self, text="...", command=self.set_outfile).grid(row=r, column=2, sticky="new")
-
-        r = r + 1
         # Input row
         ttk.Label(self, text="Inputs").grid(row=r, column=0, sticky="n")
         self.inp_list = ttk.Treeview(self, columns=('file',), show='headings')
@@ -52,18 +50,25 @@ class VocalRemover(tk.Frame):
         self.inp_list.heading('file', text="MP3 Input Files")
         self.inp_list.grid(row=r, column=1, sticky="nsew")
         ttk.Button(self, text="+", command=self.set_file).grid(row=r, column=2, sticky="new")
-
         r = r + 1
+
+        # Output row
+        ttk.Label(self, text="Output").grid(row=r, column=0)
+        ttk.Entry(self, textvariable=self.outfile).grid(row=r, column=1, sticky="ew")
+        ttk.Button(self, text="...", command=self.set_outfile).grid(row=r, column=2, sticky="new")
+        r = r + 1
+
         # Model selection row
         ttk.Label(self, text="Model").grid(row=r, column=0)
         ttk.Combobox(self, textvariable=self.model, state="readonly",
                      values=list(model_list.keys())).grid(row=r, column=1, sticky="we")
-
         r = r + 1
+
         # Run row
         ttk.Label(self, text="Advanced").grid(row=r, column=0)
         ttk.Entry(self, textvariable=self.adv_opt).grid(row=r, column=1, sticky="ew")
         ttk.Button(self, text="Run", command=self.run_demucs).grid(row=r, column=2, sticky="e")
+        r = r + 1
 
         self.grid_columnconfigure(1, weight=4)
         self.grid_rowconfigure(1, weight=4)
