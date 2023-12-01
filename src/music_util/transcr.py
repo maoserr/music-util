@@ -15,9 +15,14 @@ def crepe_exe(args: list, q: Queue):
         import crepe
         import librosa
         import pandas as pd
-        audio, sr = librosa.load(args[0])
-        time, frequency, confidence, activation = crepe.predict(audio, sr, viterbi=True)
-        pd.DataFrame({'time': time, "freq": frequency, "confident": confidence}).to_csv(args[1])
+        import os
+        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+        infiles = args[0]
+        for file in infiles:
+            audio, sr = librosa.load(file)
+            time, frequency, confidence, activation = crepe.predict(audio, sr, viterbi=True)
+            notes = librosa.hz_to_note(frequency)
+            pd.DataFrame({'time': time, "freq": frequency, "note": notes, "confident": confidence}).to_csv(args[1])
         print("Processing complete")
     except:
         import traceback
@@ -35,9 +40,12 @@ class Transcript(tk.Frame):
         r = 0
 
         # Input row
-        ttk.Label(self, text="Input").grid(row=r, column=0)
-        ttk.Entry(self, textvariable=self.inpfile).grid(row=r, column=1, sticky="ew")
-        ttk.Button(self, text="...", command=self.set_infile).grid(row=r, column=2, sticky="new")
+        ttk.Label(self, text="Input").grid(row=r, column=0, sticky="n")
+        self.inp_list = ttk.Treeview(self, columns=('file',), show='headings')
+        self.inp_list.column('file')
+        self.inp_list.heading('file', text="MP3 Input Files")
+        self.inp_list.grid(row=r, column=1, sticky="nsew")
+        ttk.Button(self, text="+", command=self.set_infile).grid(row=r, column=2, sticky="new")
         r = r + 1
 
         # Output row
@@ -55,18 +63,19 @@ class Transcript(tk.Frame):
 
     def set_outfile(self):
         self.outfile.set(tk.filedialog.asksaveasfilename(title='Select output location',
-                                                         filetypes=(("Folder", "*.*"),)))
+                                                         filetypes=(("CSV file", "*.csv"),)))
 
     def set_infile(self):
-        self.inpfile.set(tk.filedialog.askopenfilename(title='Select MP3',
-                                                       initialdir='/',
-                                                       filetypes=(("MP3", "*.mp3"), ("All files", "*.*")))
-                         )
+        files = tk.filedialog.askopenfilenames(title='Select MP3',
+                                               initialdir='/',
+                                               filetypes=(("MP3", "*.mp3"), ("All files", "*.*")))
+        for i in files:
+            self.inp_list.insert('', tk.END, values=(i,))
 
     def run_transcipt(self):
-        infile = self.inpfile.get()
+        in_files = [self.inp_list.item(i)['values'][0] for i in self.inp_list.get_children()]
         outfile = self.outfile.get()
         print("Starting crepes...")
-        all_args = [infile, outfile]
+        all_args = [in_files, outfile]
         p = Process(target=crepe_exe, args=(all_args, self.q))
         p.start()

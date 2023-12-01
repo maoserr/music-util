@@ -20,7 +20,7 @@ class StdoutProcRedirect(object):
         self.queue = q
 
     def write(self, string: str):
-        self.queue.put(string)
+        self.queue.put("> "+string)
 
     def flush(self):
         pass
