@@ -2,8 +2,31 @@ import os
 import sys
 import tkinter as tk
 from tkinter import ttk, filedialog
-from collections import OrderedDict
 from multiprocessing import Process, Queue
+
+import librosa
+import pandas as pd
+
+
+def get_notes(notes: pd.DataFrame, outfile: str, tempo: float, beats: list):
+    beat_len_ms = (60 * 1000) / tempo
+    min_note_len = beat_len_ms / 16
+
+    notes['chg'] = notes.note.ne(notes.note.shift())
+    notes['not_rest'] = notes.confidence.gt(0.6)
+    notes['notes_chg'] = notes['chg'] & notes['not_rest']
+    notes['notes_size'] = notes['notes_chg'].cumsum()
+
+    notes_uniq = notes.groupby('notes_size').agg({
+        'pitch': 'first',
+        'confidence': 'first',
+        'note': 'first',
+        'chg': 'count',
+        'not_rest': 'first',
+        'notes_chg': 'first'
+    })
+    outdf = notes
+    outdf.to_csv(outfile)
 
 
 def crepe_exe(args: list, q: Queue):
@@ -12,17 +35,23 @@ def crepe_exe(args: list, q: Queue):
     sys.stderr = StdoutProcRedirect(q)
 
     try:
-        import crepe
-        import librosa
-        import pandas as pd
+        import torchcrepe
+        import numpy as np
+        import torch
         import os
-        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
         infiles = args[0]
         for file in infiles:
-            audio, sr = librosa.load(file)
-            time, frequency, confidence, activation = crepe.predict(audio, sr, viterbi=True)
-            notes = librosa.hz_to_note(frequency)
-            pd.DataFrame({'time': time, "freq": frequency, "note": notes, "confident": confidence}).to_csv(args[1])
+            audio_rosa, sr = librosa.load(file, sr=16000, mono=True)
+            tempo, beats = librosa.beat.beat_track(y=audio_rosa, sr=sr)
+            if audio_rosa.dtype == np.int16:
+                audio_rosa = audio_rosa.astype(np.float32) / np.iinfo(np.int16).max
+
+            audio = torch.tensor(np.copy(audio_rosa.transpose()))[None]
+            pitch, confidence = torchcrepe.predict(audio, sr, return_periodicity=True, model="tiny")
+            notes = pd.DataFrame({"pitch": pitch.numpy().squeeze(), "confidence": confidence.numpy().squeeze()})
+            notes['note'] = librosa.hz_to_note(notes['pitch'])
+            get_notes(notes, args[1], tempo, beats)
         print("Processing complete")
     except:
         import traceback
