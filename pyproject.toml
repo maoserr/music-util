@@ -16,9 +16,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies] # Optional
-"spleeter" = ["spleeter>=2.3.0"]
 "demucs" = ["demucs>=4.0.1"]
-"crepe" = ["crepe==0.0.14"]
+"crepe" = ["torchcrepe>=0.0.22", "librosa>=0.9.1", "pandas>=2.0.0"]
 
 [project.urls]  # Optional
 "Bug Reports" = "https://github.com/maoserr/music-util/issues"

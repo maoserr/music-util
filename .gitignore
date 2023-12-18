@@ -2,3 +2,6 @@
 dist/
 *.egg-info
 VERSION
+*.bak
+__pycache__
+src/music_util/out
