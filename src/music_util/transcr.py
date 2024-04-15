@@ -76,7 +76,7 @@ def gen_sheet(note_cnts: pd.DataFrame,
     labels = ['32', '16', '8', '4', '2', '1', '1/2']
     note_cnts['note_cat'] = pd.cut(note_cnts['num_beats'],
                                    valid_notes,
-                                   labels=labels).fillna('2W')
+                                   labels=labels).fillna('1/2')
     notations = []
     for _, r in note_cnts.iterrows():
         if r["not_rest"]:
@@ -87,21 +87,26 @@ def gen_sheet(note_cnts: pd.DataFrame,
                 curr_not += 'is'
             if octa == '4':
                 curr_not += "'"
+            elif octa == '5':
+                curr_not += "''"
+            elif octa == '6':
+                curr_not += "'''"
             if r["note_cat"] == '1/2':
-                notations.append(curr_not + "1")
-                notations.append(curr_not + "1")
+                notations.append(curr_not + "1" + " "+curr_not + "1")
             else:
-                notations.append(curr_not + r["note_cat"] )
+                notations.append(curr_not + r["note_cat"])
         else:
-            if r["note_cat"]  == '1/2':
-                notations.append('r1')
-                notations.append('r1')
+            if r["note_cat"] == '1/2':
+                notations.append('r1 r1')
             else:
-                notations.append('r'+r["note_cat"] )
-    with open(os.path.join(outfile, f"{inbase}_input.li"),"w") as f:
+                notations.append('r' + r["note_cat"])
+        if len(notations) % 8 == 7:
+            notations.append("\n")
+    with open(os.path.join(outfile, f"{inbase}_input.ly"), "w") as f:
         f.write("{\n")
         f.write(" ".join(notations))
         f.write("\n}\n")
+
 
 def crepe_exe(args: list, q: Queue):
     from music_util.utils import StdoutProcRedirect
@@ -113,6 +118,12 @@ def crepe_exe(args: list, q: Queue):
         import numpy as np
         import torch
         import os
+
+        if torch.cuda.is_available():
+            device = "cuda"
+        else:
+            device = "cpu"
+        print(f"GPU acceleration: {device}")
 
         infiles = args[0]
         os.makedirs(args[1], exist_ok=True)
@@ -128,7 +139,12 @@ def crepe_exe(args: list, q: Queue):
 
             print("Predicting pitch...")
             audio = torch.tensor(np.copy(audio_rosa.transpose()))[None]
-            pitch, confidence = torchcrepe.predict(audio, sr, hop_length=160, return_periodicity=True, model="tiny")
+            pitch, confidence = torchcrepe.predict(audio, sr,
+                                                   hop_length=160,
+                                                   return_periodicity=True,
+                                                   device=device,
+                                                   batch_size=2048,
+                                                   model="full")
             notes = pd.DataFrame({"pitch": pitch.numpy().squeeze(), "confidence": confidence.numpy().squeeze()})
 
             print("Processing notes...")
@@ -149,6 +165,9 @@ def crepe_exe(args: list, q: Queue):
         traceback.print_exc()
 
 
+model_list = ["full","tiny"]
+
+
 class Transcript(tk.Frame):
     def __init__(self, root: ttk.Notebook, q: Queue, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
@@ -157,6 +176,8 @@ class Transcript(tk.Frame):
 
         self.outfile = tk.StringVar(root, os.path.join(os.getcwd(), "out"))
         self.inpfile = tk.StringVar(root, "")
+        self.model = tk.StringVar(root, model_list[0])
+
         r = 0
 
         # Input row
@@ -175,6 +196,9 @@ class Transcript(tk.Frame):
         r = r + 1
 
         # Run row
+        ttk.Label(self, text="Model").grid(row=r, column=0)
+        ttk.Combobox(self, textvariable=self.model, state="readonly",
+                     values=model_list).grid(row=r, column=1, sticky="we")
         ttk.Button(self, text="Run", command=self.run_transcipt).grid(row=r, column=2, sticky="e")
 
         self.grid_columnconfigure(1, weight=4)
