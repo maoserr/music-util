@@ -22,7 +22,14 @@ def demucs_exec(args: list, q: Queue):
     sys.stderr = StdoutProcRedirect(q)
 
     try:
+        import torch
         from demucs import separate
+        if torch.cuda.is_available():
+            device = "cuda"
+        else:
+            device = "cpu"
+        print(f"GPU acceleration: {device}")
+
         separate.main(args)
         print("Processing complete")
     except:
